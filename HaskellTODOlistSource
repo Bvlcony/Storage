@@ -1,0 +1,68 @@
+import Data.Char
+import System.IO
+import Text.Read
+
+check :: String -> IO ()
+check x1 
+    | x1 == "0" = do
+            putStrLn "1 to view, 2 to add, 3 to delete, 4 to exit"
+            mainLoop []
+    | x1 == "9" = do
+            putStrLn("Quick help:\n \nTo show current list just type 1 and press enter\n \nExample of adding (type everything in one line):\n 2 wake up\n \nHow to delete:\n Press 3, select the point you want to delete by typing its number and pressing enter\n \n1 to view, 2 to add, 3 to delete, 4 to exit")
+            mainLoop []
+    | otherwise = do
+            putStrLn(" \nInput 0 or 9 first\n ") 
+            skipEnter <- getChar
+            main
+ 
+
+pointNum :: [String] -> [String]
+pointNum = zipWith (\a b -> a ++ ". " ++ b) (map show [1..])
+
+pointDel :: Int -> [a] -> [a]
+pointDel i vvod = take i vvod ++ drop (succ i) vvod
+
+pointShow :: [String] -> IO ()
+pointShow = mapM_ putStrLn
+
+selectAct :: [String] -> Char -> IO [String]
+selectAct vvod '1' = do
+  if (not.null) vvod then pointShow $ pointNum vvod
+  else putStrLn "Nothing to show, add something first"
+  return vvod
+selectAct vvod '2' = do
+  str <- getLine
+  return (vvod ++ [str])
+selectAct vvod '3' = do
+  if null vvod 
+  then do
+     putStrLn "Nothing to delete, add something first"
+     return vvod
+  else do
+     putStr "What point do you want to remove? (Dont input something that is not in list!)\n"
+     pointShow $ pointNum vvod
+     i <- getLine 
+     i <- getLine
+     i <- getLine
+     case (readMaybe i :: Maybe Int) of
+           Just num -> return (pointDel (pred num) vvod)
+           Nothing -> do 
+                putStr "Not a point from list"
+                return vvod
+selectAct vvod _ = do
+    return vvod
+
+mainLoop vvod = do
+  --skipEnter <- getChar
+  c <- getChar
+  putChar '\n'
+  do
+    vvod' <- selectAct vvod c
+    mainLoop vvod'
+
+main :: IO ()
+main = do
+putStrLn "Input 9 to see quick help and start"
+putStrLn "Input 0 to start"
+x1 <- getLine
+check x1
